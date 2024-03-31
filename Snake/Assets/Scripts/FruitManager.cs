@@ -9,7 +9,7 @@ public class FruitManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        grid = GridGenerator.Instance.CurrentGrid;
+        grid = GridManager.Instance.CurrentGrid;
     }
 
     // Update is called once per frame

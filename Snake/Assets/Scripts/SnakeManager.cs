@@ -9,30 +9,6 @@ public class SnakeManager : MonoBehaviour
 {
     [SerializeField]
     private int snakeLength;
-    //TODO: why we need this??????
-    public class SnakeGrid
-    {
-        private GridObject currentGridObject;
-        public GridObject CurrentGridObject => currentGridObject;
-        private GridObject previousGridObject;
-        public GridObject PreviousGridObject => previousGridObject;
-        private GridObject nextGridObject;
-        public GridObject NextGridObject => nextGridObject;
-
-        public void SetCurrentGridObject(GridObject gridObject)
-        {
-            currentGridObject = gridObject;
-            gridObject.SetBoolValue(true);
-        }
-        public void SetPreviousGridObject(GridObject gridObject)
-        {
-            previousGridObject = gridObject;
-        }
-        public void SetNextGridObject(GridObject gridObject)
-        {
-            nextGridObject = gridObject;
-        }
-    }
     private GridObject snakeHead;
     private GridObject snakeTail;
     private GridObject previousTail;
@@ -91,7 +67,7 @@ public class SnakeManager : MonoBehaviour
                 if(snakeTail == snake[i])
                 {
                     snake[i].SetColor(Color.white);
-                    snake[i].SetBoolValue(false);
+                    GridManager.Instance.SetGridBoolValue(snake[i], false);
                     previousTail = snake[i];
                     snake[i] = snake[i - 1];
                 }
@@ -99,7 +75,7 @@ public class SnakeManager : MonoBehaviour
                 {
                     snake[i] = newGridObject;
                     snake[i].SetColor(color);
-                    snake[i].SetBoolValue(true);
+                    GridManager.Instance.SetGridBoolValue(snake[i], true);
                 }
                 else
                 {
@@ -129,7 +105,7 @@ public class SnakeManager : MonoBehaviour
     {
         if(previousTail != snakeTail)
         {
-            previousTail.SetBoolValue(true);
+            GridManager.Instance.SetGridBoolValue(previousTail, true);
             snake.Add(previousTail);
             snakeLength ++;
             snakeTail = previousTail;
@@ -143,7 +119,7 @@ public class SnakeManager : MonoBehaviour
 
     private void GenerateSnake()
     {   
-        grid =  GridGenerator.Instance.CurrentGrid;
+        grid =  GridManager.Instance.CurrentGrid;
         int randomX = UnityEngine.Random.Range(0, grid.Width);
         int randomY = UnityEngine.Random.Range(0, grid.Height);
         snakeHead = grid.GridObjects[randomX, randomY];
@@ -153,7 +129,7 @@ public class SnakeManager : MonoBehaviour
             Color color = new Color(1f - (float)i / snakeList.Count, 1f, 0.5f);
             GridObject newGridObejct = grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y];
             newGridObejct.SetColor(color);
-            newGridObejct.SetBoolValue(true);
+            GridManager.Instance.SetGridBoolValue(newGridObejct, true);
             snake.Add(newGridObejct);
         }
         snakeTail = snake[snakeLength - 1];
