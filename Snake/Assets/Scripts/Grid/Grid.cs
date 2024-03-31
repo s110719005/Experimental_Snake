@@ -9,6 +9,8 @@ namespace GridSystem
     [System.Serializable]
     public class GridObject
     {
+        public int x;
+        public int y;
         public int intValue;
         public SpriteRenderer gridSprite;
         public bool boolValue;
@@ -22,6 +24,11 @@ namespace GridSystem
         public void SetBoolValue(bool v)
         {
             boolValue = v;
+        }
+
+        public void SetColor(Color c)
+        {
+            gridSprite.color = c;
         }
     }
     
@@ -84,19 +91,16 @@ namespace GridSystem
                     gridObjects[x, y].gridSprite.sprite = gridSprite;
                     gridObjects[x, y].gridSprite.color = Color.white;
 
-                    //gridSprites[x, y] = gameObject.GetComponent<SpriteRenderer>();
-                    //gridSprites[x, y].sprite = gridSprite;
-                    //gridSprites[x, y].color = Color.white;
                     Transform transform = gameObject.transform;
                     transform.SetParent(parent.transform, false);
                     transform.localPosition = GetWorldPosition(x, y) + new Vector3(cellSize / 2, 0, cellSize / 2);
                     transform.rotation = Quaternion.Euler(new Vector3(90, 0, 0));
                     transform.localScale = new Vector3(10, 10);
 
-                    //gridArray[x, y] = 0;
-                    //value[x, y] = false;
                     gridObjects[x, y].intValue = 0;
                     gridObjects[x, y].boolValue = false;
+                    gridObjects[x, y].x = x;
+                    gridObjects[x, y].y = y;
                 }
             }
         }
@@ -130,7 +134,6 @@ namespace GridSystem
         }
         private void SetValue(int x, int y, int value)
         {
-            //gridArray[x, y] = value;
             gridObjects[x, y].intValue = value;
         }
 
