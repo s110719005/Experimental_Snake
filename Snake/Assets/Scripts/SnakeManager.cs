@@ -48,6 +48,7 @@ public class SnakeManager : MonoBehaviour
         {
             Color color = new Color(1, 1, 1);
             snake[i].SetColor(color);
+            GridManager.Instance.SetGridBoolValue(snake[i], false);
         }
         snakeList.Clear();
         snake.Clear();
@@ -103,7 +104,9 @@ public class SnakeManager : MonoBehaviour
         if(!IsAvailableAdjacent(snakeHead))
         {
             ResetSnake();
+            fruitManager.ResetFruit();
             GenerateSnake();
+            fruitManager.GenerateFruit();
         }
     }
 
@@ -131,6 +134,10 @@ public class SnakeManager : MonoBehaviour
                 Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
                 snake[i].SetColor(color);
             }
+            if(snakeLength == grid.Width * grid.Height)
+            {
+                Debug.Log("END");
+            }
         }
     }
 
@@ -155,7 +162,7 @@ public class SnakeManager : MonoBehaviour
     {
         count ++;
         Debug.Log("Count: " + count);
-        if(count >= 10) 
+        if(count >= 100) 
         {
             Debug.Log("FAILED");
             return null;

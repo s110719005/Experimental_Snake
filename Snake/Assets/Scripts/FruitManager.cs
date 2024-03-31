@@ -18,12 +18,11 @@ public class FruitManager : MonoBehaviour
         GenerateFruit();
     }
 
-    private void GenerateFruit()
+    public void GenerateFruit()
     {
-        int random = UnityEngine.Random.Range(1, maxGenerateAmount);
-        for(int i = 0; i < random; i++)
+        GridObject fruitGridObject = GridManager.Instance.GetRandomAvailableGrid();
+        if(fruitGridObject != null)
         {
-            GridObject fruitGridObject = GridManager.Instance.GetRandomAvailableGrid();
             GridManager.Instance.SetGridColor(fruitGridObject, Color.red);
             GridManager.Instance.SetGridBoolValue(fruitGridObject, true);
             fruits.Add(fruitGridObject);
@@ -33,7 +32,20 @@ public class FruitManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            GenerateFruit();
+        }
+    }
+
+    public void ResetFruit()
+    {
+        foreach (var fruit in fruits)
+        {
+            GridManager.Instance.SetGridColor(fruit, Color.white);
+            GridManager.Instance.SetGridBoolValue(fruit, false);
+        }
+        fruits.Clear();
     }
 
     public bool IsContainGird(GridObject gridObject)
@@ -48,7 +60,11 @@ public class FruitManager : MonoBehaviour
         //GridManager.Instance.SetGridBoolValue(gridObject, false);
         if(fruits.Count < 3)
         {
-            GenerateFruit();
+            int random = UnityEngine.Random.Range(1, maxGenerateAmount);
+            for(int i = 0; i < random; i++)
+            {
+                GenerateFruit();
+            }
         }
     }
 }
