@@ -70,39 +70,64 @@ public class SnakeManager : MonoBehaviour
         }
         else
         {
-            for(int i = snake.Count - 1; i >= 0; i--)
-            {
-                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                if(snakeTail == snake[i])
-                {
-                    snake[i].SetColor(Color.white);
-                    GridManager.Instance.SetGridBoolValue(snake[i], false);
-                    previousTail = snake[i];
-                    snake[i] = snake[i - 1];
-                }
-                else if(snakeHead == snake[i])
-                {
-                    snake[i] = newGridObject;
-                    snake[i].SetColor(color);
-                    GridManager.Instance.SetGridBoolValue(snake[i], true);
-                }
-                else
-                {
-                    snake[i].SetColor(color);
-                    snake[i] = snake[i - 1];
-                }
+            // for(int i = snake.Count - 1; i >= 0; i--)
+            // {
+            //     //Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
+            //     Color color = snake[i].GridSprite.color;;
+            //     //if(i != 0) { color = snake[i - 1].GridSprite.color; }
+            //     Debug.Log("color: " + color);
+            //     Debug.Log("Snake:" + snake[i].X + ", " + snake[i].Y);
+            //     if(snakeTail == snake[i])
+            //     {
+            //         snake[i].SetColor(Color.white);
+            //         GridManager.Instance.SetGridBoolValue(snake[i], false);
+            //         previousTail = snake[i];
+            //         snake[i] = snake[i - 1];
+            //         snake[i].SetColor(color);
+            //     }
+            //     else if(snakeHead == snake[i])
+            //     {
+            //         snake[i] = newGridObject;
+            //         snake[i].SetColor(color);
+            //         GridManager.Instance.SetGridBoolValue(snake[i], true);
+            //     }
+            //     else
+            //     {
+            //         snake[i] = snake[i - 1];
+            //         snake[i].SetColor(color);
+            //     }
                 
-            }
+            // }
+
+            snake.Insert(0, newGridObject);
             snakeHead = newGridObject;
+            GridManager.Instance.SetGridBoolValue(newGridObject, true);
+            FruitCollideCheck(newGridObject);
+            for(int i = 0; i < snake.Count - 1; i++)
+            {
+                GridManager.Instance.SetGridColor(snake[i], snake[i + 1].GridSprite.color);
+            }
+            GridManager.Instance.SetGridColor(snakeTail, Color.white);
+            GridManager.Instance.SetGridBoolValue(snakeTail, false);
+            previousTail = snakeTail;
+            snake.Remove(snakeTail);
             snakeTail = snake[snakeLength - 1];
         }
-        FruitCollideCheck(newGridObject);
+    }
+
+    private void ChangeSnakeColor(Color baseColor)
+    {
+        for(int i = 0; i < snake.Count; i++)
+        {
+            Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
+        }
     }
 
     private void StuckCheck()
     {
         if(!IsAvailableAdjacent(snakeHead))
         {
+            //TODO: restart
             ResetSnake();
             fruitManager.ResetFruit();
             GenerateSnake();
@@ -116,24 +141,25 @@ public class SnakeManager : MonoBehaviour
         //if collide
         if(fruitManager.IsContainGird(gridObject))
         {
-            Grow();
+            Grow(gridObject.GridSprite.color);
             fruitManager.RemoveFruit(gridObject);
         }
     }
 
-    private void Grow()
+    private void Grow(Color color)
     {
         if(previousTail != snakeTail)
         {
             GridManager.Instance.SetGridBoolValue(previousTail, true);
+            GridManager.Instance.SetGridColor(previousTail, color);
             snake.Add(previousTail);
             snakeLength ++;
             snakeTail = previousTail;
-            for(int i = 0; i < snakeLength; i++)
-            {
-                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                snake[i].SetColor(color);
-            }
+            // for(int i = 0; i < snakeLength; i++)
+            // {
+            //     Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
+            //     snake[i].SetColor(color);
+            // }
             if(snakeLength == grid.Width * grid.Height)
             {
                 Debug.Log("END");

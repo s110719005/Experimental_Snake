@@ -23,7 +23,11 @@ public class FruitManager : MonoBehaviour
         GridObject fruitGridObject = GridManager.Instance.GetRandomAvailableGrid();
         if(fruitGridObject != null)
         {
-            GridManager.Instance.SetGridColor(fruitGridObject, Color.red);
+            float randomR = UnityEngine.Random.Range(0, 1f);
+            float randomG = UnityEngine.Random.Range(0, 1f);
+            float randomB = UnityEngine.Random.Range(0, 1f);
+            Color color = new Color(randomR, randomG, randomB);
+            GridManager.Instance.SetGridColor(fruitGridObject, color);
             GridManager.Instance.SetGridBoolValue(fruitGridObject, true);
             fruits.Add(fruitGridObject);
         }
@@ -35,6 +39,10 @@ public class FruitManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.T))
         {
             GenerateFruit();
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            ResetFruit();
         }
     }
 
@@ -60,6 +68,7 @@ public class FruitManager : MonoBehaviour
         //GridManager.Instance.SetGridBoolValue(gridObject, false);
         if(fruits.Count < 3)
         {
+            ResetFruit();
             int random = UnityEngine.Random.Range(1, maxGenerateAmount);
             for(int i = 0; i < random; i++)
             {
