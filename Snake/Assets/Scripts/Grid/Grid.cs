@@ -9,26 +9,47 @@ namespace GridSystem
     [System.Serializable]
     public class GridObject
     {
-        public int x;
-        public int y;
-        public int intValue;
-        public SpriteRenderer gridSprite;
-        public bool boolValue;
+        private int x;
+        public int X => x;
+        private int y;
+        public int Y => y;
+        private int intValue;
+        public int IntValue => intValue;
+        private SpriteRenderer gridSprite;
+        public SpriteRenderer GridSprite => gridSprite;
+        private bool boolValue;
+        public bool BoolValue => boolValue;
         public GridObject()
         {
             intValue = 0;
             gridSprite = null;
             boolValue = false;
         }
-
+        public void SetXY(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
         public void SetBoolValue(bool v)
         {
             boolValue = v;
         }
-
+        public void SetSprite(SpriteRenderer spriteRenderer)
+        {
+            gridSprite = spriteRenderer;
+        }
+        public void SetSprite(Sprite sprite)
+        {
+            if(gridSprite == null) { return; }
+            gridSprite.sprite = sprite;
+        }
         public void SetColor(Color c)
         {
             gridSprite.color = c;
+        }
+        public void SetIntValue(int value)
+        {
+            intValue = value;
         }
     }
     
@@ -87,9 +108,9 @@ namespace GridSystem
                 {
                     GameObject gameObject = new GameObject("gridObject", typeof(SpriteRenderer));
                     gridObjects[x, y] = new GridObject();
-                    gridObjects[x, y].gridSprite = gameObject.GetComponent<SpriteRenderer>();
-                    gridObjects[x, y].gridSprite.sprite = gridSprite;
-                    gridObjects[x, y].gridSprite.color = Color.white;
+                    gridObjects[x, y].SetSprite(gameObject.GetComponent<SpriteRenderer>());
+                    gridObjects[x, y].SetSprite(gridSprite);
+                    gridObjects[x, y].SetColor(Color.white);
 
                     Transform transform = gameObject.transform;
                     transform.SetParent(parent.transform, false);
@@ -97,10 +118,9 @@ namespace GridSystem
                     transform.rotation = Quaternion.Euler(new Vector3(90, 0, 0));
                     transform.localScale = new Vector3(10, 10);
 
-                    gridObjects[x, y].intValue = 0;
-                    gridObjects[x, y].boolValue = false;
-                    gridObjects[x, y].x = x;
-                    gridObjects[x, y].y = y;
+                    gridObjects[x, y].SetIntValue(0);
+                    gridObjects[x, y].SetBoolValue(false);
+                    gridObjects[x, y].SetXY(x, y);
                 }
             }
         }
@@ -124,43 +144,43 @@ namespace GridSystem
             }
         }
 
-        public void SetValue(Vector3 worldPosition, int value)
-        {
-            int x, y;
-            GetXY(worldPosition, out x, out y);
-            if(x < 0 || x >= width) { return; }
-            if(y < 0 || y >= height) { return; }
-            SetValue(x, y, value);
-        }
-        private void SetValue(int x, int y, int value)
-        {
-            gridObjects[x, y].intValue = value;
-        }
+        // public void SetValue(Vector3 worldPosition, int value)
+        // {
+        //     int x, y;
+        //     GetXY(worldPosition, out x, out y);
+        //     if(x < 0 || x >= width) { return; }
+        //     if(y < 0 || y >= height) { return; }
+        //     SetValue(x, y, value);
+        // }
+        // private void SetValue(int x, int y, int value)
+        // {
+        //     gridObjects[x, y].intValue = value;
+        // }
 
-        public bool SetSpriteColor(Vector3 worldPosition, Color color, out int positionX, out int positionY)
-        {
-            int x, y;
-            GetXY(worldPosition, out x, out y);
-            positionX = x;
-            positionY = y;
+        // public bool SetSpriteColor(Vector3 worldPosition, Color color, out int positionX, out int positionY)
+        // {
+        //     int x, y;
+        //     GetXY(worldPosition, out x, out y);
+        //     positionX = x;
+        //     positionY = y;
 
-            if(x < 0 || x >= width) { return false; }
-            if(y < 0 || y >= height) { return false; }
-            return SetSpriteColor(x, y, color);
-        }
+        //     if(x < 0 || x >= width) { return false; }
+        //     if(y < 0 || y >= height) { return false; }
+        //     return SetSpriteColor(x, y, color);
+        // }
 
-        public bool SetSpriteColor(int x, int y, Color color)
-        {
-            if(gridObjects[x, y].gridSprite.color == color) { return false; }
-            gridObjects[x, y].gridSprite.color = color;
-            return true;
+        // public bool SetSpriteColor(int x, int y, Color color)
+        // {
+        //     if(gridObjects[x, y].gridSprite.color == color) { return false; }
+        //     gridObjects[x, y].gridSprite.color = color;
+        //     return true;
             
-        }
+        // }
 
-        public void SetCorrect(int x, int y, bool value)
-        {
-            gridObjects[x, y].boolValue = value;
-        }
+        // public void SetCorrect(int x, int y, bool value)
+        // {
+        //     gridObjects[x, y].boolValue = value;
+        // }
 
         public void Reset()
         {

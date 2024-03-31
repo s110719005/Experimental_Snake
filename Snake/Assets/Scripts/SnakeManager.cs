@@ -8,40 +8,17 @@ using UnityEngine;
 public class SnakeManager : MonoBehaviour
 {
     [SerializeField]
-    private GridGenerator gridGenerator;
-    [SerializeField]
     private int snakeLength;
-    //TODO: why we need this??????
-    public class SnakeGrid
-    {
-        private GridObject currentGridObject;
-        public GridObject CurrentGridObject => currentGridObject;
-        private GridObject previousGridObject;
-        public GridObject PreviousGridObject => previousGridObject;
-        private GridObject nextGridObject;
-        public GridObject NextGridObject => nextGridObject;
-
-        public void SetCurrentGridObject(GridObject gridObject)
-        {
-            currentGridObject = gridObject;
-            gridObject.SetBoolValue(true);
-        }
-        public void SetPreviousGridObject(GridObject gridObject)
-        {
-            previousGridObject = gridObject;
-        }
-        public void SetNextGridObject(GridObject gridObject)
-        {
-            nextGridObject = gridObject;
-        }
-    }
+    [SerializeField]
+    private FruitManager fruitManager;
     private GridObject snakeHead;
     private GridObject snakeTail;
+    private GridObject previousTail;
     //[SerializeField]
     //private Vector2 snakeGeneratePosition;
     private GridSystem.Grid grid;
     private List<Vector2> snakeList;
-    private List<GridObject> snake;
+    public List<GridObject> snake;
     void Start()
     {
         snake = new List<GridObject>();
@@ -65,11 +42,13 @@ public class SnakeManager : MonoBehaviour
     {
         snakeHead = null;
         snakeTail = null;
+        previousTail = null;
         //reset color
-        for(int i = 0; i < snakeList.Count; i++)
+        for(int i = 0; i < snake.Count; i++)
         {
             Color color = new Color(1, 1, 1);
-            grid.SetSpriteColor((int)snakeList[i].x, (int)snakeList[i].y, color);
+            snake[i].SetColor(color);
+            GridManager.Instance.SetGridBoolValue(snake[i], false);
         }
         snakeList.Clear();
         snake.Clear();
@@ -77,28 +56,35 @@ public class SnakeManager : MonoBehaviour
 
     private void MoveSnake(int x, int y)
     {
-        GridObject newGridObject = grid.GridObjects[snakeHead.x + x, snakeHead.y + y];
+        StuckCheck();
+        if(snakeHead.X + x < 0 || snakeHead.Y + y < 0 || snakeHead.X + x >= grid.Width || snakeHead.Y + y >= grid.Height) 
+        {
+            Debug.Log("Can't move");
+            return;
+        }
+        GridObject newGridObject = grid.GridObjects[snakeHead.X + x, snakeHead.Y + y];
         if(snake.Contains(newGridObject))
         {
             Debug.Log("Can't move");
+            return;
         }
         else
         {
             for(int i = snake.Count - 1; i >= 0; i--)
             {
                 Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                GridObject tempGridObject = snake[i];
                 if(snakeTail == snake[i])
                 {
                     snake[i].SetColor(Color.white);
-                    snake[i].SetBoolValue(false);
+                    GridManager.Instance.SetGridBoolValue(snake[i], false);
+                    previousTail = snake[i];
                     snake[i] = snake[i - 1];
                 }
                 else if(snakeHead == snake[i])
                 {
                     snake[i] = newGridObject;
                     snake[i].SetColor(color);
-                    snake[i].SetBoolValue(true);
+                    GridManager.Instance.SetGridBoolValue(snake[i], true);
                 }
                 else
                 {
@@ -110,31 +96,73 @@ public class SnakeManager : MonoBehaviour
             snakeHead = newGridObject;
             snakeTail = snake[snakeLength - 1];
         }
+        FruitCollideCheck(newGridObject);
+    }
+
+    private void StuckCheck()
+    {
+        if(!IsAvailableAdjacent(snakeHead))
+        {
+            ResetSnake();
+            fruitManager.ResetFruit();
+            GenerateSnake();
+            fruitManager.GenerateFruit();
+        }
+    }
+
+    private void FruitCollideCheck(GridObject gridObject)
+    {
+        if(fruitManager == null) { return; }
+        //if collide
+        if(fruitManager.IsContainGird(gridObject))
+        {
+            Grow();
+            fruitManager.RemoveFruit(gridObject);
+        }
+    }
+
+    private void Grow()
+    {
+        if(previousTail != snakeTail)
+        {
+            GridManager.Instance.SetGridBoolValue(previousTail, true);
+            snake.Add(previousTail);
+            snakeLength ++;
+            snakeTail = previousTail;
+            for(int i = 0; i < snakeLength; i++)
+            {
+                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
+                snake[i].SetColor(color);
+            }
+            if(snakeLength == grid.Width * grid.Height)
+            {
+                Debug.Log("END");
+            }
+        }
     }
 
     private void GenerateSnake()
     {   
-        grid =  gridGenerator.CurrentGrid;
-        int randomX = UnityEngine.Random.Range(0, grid.Width);
-        int randomY = UnityEngine.Random.Range(0, grid.Height);
-        snakeHead = grid.GridObjects[randomX, randomY];
-        snakeList = CheckValid(randomX, randomY);
+        grid =  GridManager.Instance.CurrentGrid;
+        snakeHead = GridManager.Instance.GetRandomAvailableGrid();
+        snakeList = CheckValid(snakeHead.X, snakeHead.Y);
         for(int i = 1; i < snakeList.Count + 1; i++)
         {
             Color color = new Color(1f - (float)i / snakeList.Count, 1f, 0.5f);
-            grid.SetSpriteColor((int)snakeList[i - 1].x, (int)snakeList[i - 1].y, color);
-            grid.SetCorrect((int)snakeList[i - 1].x, (int)snakeList[i - 1].y, true);
-            snake.Add(grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y]);
+            GridObject newGridObejct = grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y];
+            newGridObejct.SetColor(color);
+            GridManager.Instance.SetGridBoolValue(newGridObejct, true);
+            snake.Add(newGridObejct);
         }
-        snakeTail = grid.GridObjects[(int)snakeList[snakeLength - 1].x, (int)snakeList[snakeLength - 1].y];
-        
+        snakeTail = snake[snakeLength - 1];
+        previousTail = snakeTail;
     }
 
     private List<Vector2> CheckValid(int x, int y, int count = 0)
     {
         count ++;
         Debug.Log("Count: " + count);
-        if(count >= 10) 
+        if(count >= 100) 
         {
             Debug.Log("FAILED");
             return null;
@@ -181,5 +209,25 @@ public class SnakeManager : MonoBehaviour
             random = UnityEngine.Random.Range(0, adjacentGrid.Count);
             return adjacentGrid[random];
         }
+    }
+
+    private bool IsAvailableAdjacent(GridObject gridObject)
+    {
+        List<Vector2> adjacentGrid = new List<Vector2>{ new Vector2(gridObject.X + 1, gridObject.Y), 
+                                                        new Vector2(gridObject.X - 1, gridObject.Y), 
+                                                        new Vector2(gridObject.X, gridObject.Y + 1), 
+                                                        new Vector2(gridObject.X, gridObject.Y - 1)};
+        for(int i = 0; i < adjacentGrid.Count; i++)
+        {
+            //check if in grid
+            //if() { return true; } 
+            //if() { return true; }  
+            //check if used
+            if(Mathf.Clamp(adjacentGrid[i].x, 0, grid.Width - 1) == adjacentGrid[i].x && Mathf.Clamp(adjacentGrid[i].y, 0, grid.Height - 1) == adjacentGrid[i].y) 
+            {
+                if(!snake.Contains(grid.GridObjects[(int)adjacentGrid[i].x, (int)adjacentGrid[i].y])) { return true; }
+            }
+        }
+        return false;
     }
 }
