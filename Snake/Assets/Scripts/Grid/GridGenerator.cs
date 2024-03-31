@@ -19,6 +19,7 @@ namespace GridSystem
 {
     public class GridGenerator : MonoBehaviour
     {
+        public static GridGenerator Instance;
         private Grid grid;
         public Grid CurrentGrid => grid;
         [SerializeField]
@@ -41,6 +42,14 @@ namespace GridSystem
         
         void Awake()
         {
+            if(Instance == null)
+            {
+                 Instance = this;
+            }
+            else
+            {
+                Destroy(this);
+            }
             int random = UnityEngine.Random.Range(0, gridDefinitions.Count);
             currentGridDefinition = gridDefinitions[random];
             // if(templateImage != null) { templateImage.sprite = currentGridDefinition.TemplateSprite; }

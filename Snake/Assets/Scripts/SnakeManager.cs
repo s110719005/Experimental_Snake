@@ -8,8 +8,6 @@ using UnityEngine;
 public class SnakeManager : MonoBehaviour
 {
     [SerializeField]
-    private GridGenerator gridGenerator;
-    [SerializeField]
     private int snakeLength;
     //TODO: why we need this??????
     public class SnakeGrid
@@ -37,6 +35,7 @@ public class SnakeManager : MonoBehaviour
     }
     private GridObject snakeHead;
     private GridObject snakeTail;
+    private GridObject previousTail;
     //[SerializeField]
     //private Vector2 snakeGeneratePosition;
     private GridSystem.Grid grid;
@@ -65,11 +64,12 @@ public class SnakeManager : MonoBehaviour
     {
         snakeHead = null;
         snakeTail = null;
+        previousTail = null;
         //reset color
         for(int i = 0; i < snakeList.Count; i++)
         {
             Color color = new Color(1, 1, 1);
-            grid.SetSpriteColor((int)snakeList[i].x, (int)snakeList[i].y, color);
+            snake[i].SetColor(color);
         }
         snakeList.Clear();
         snake.Clear();
@@ -77,21 +77,22 @@ public class SnakeManager : MonoBehaviour
 
     private void MoveSnake(int x, int y)
     {
-        GridObject newGridObject = grid.GridObjects[snakeHead.x + x, snakeHead.y + y];
+        GridObject newGridObject = grid.GridObjects[snakeHead.X + x, snakeHead.Y + y];
         if(snake.Contains(newGridObject))
         {
             Debug.Log("Can't move");
+            return;
         }
         else
         {
             for(int i = snake.Count - 1; i >= 0; i--)
             {
                 Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                GridObject tempGridObject = snake[i];
                 if(snakeTail == snake[i])
                 {
                     snake[i].SetColor(Color.white);
                     snake[i].SetBoolValue(false);
+                    previousTail = snake[i];
                     snake[i] = snake[i - 1];
                 }
                 else if(snakeHead == snake[i])
@@ -110,11 +111,39 @@ public class SnakeManager : MonoBehaviour
             snakeHead = newGridObject;
             snakeTail = snake[snakeLength - 1];
         }
+        FruitCollideCheck();
+    }
+
+    private void FruitCollideCheck()
+    {
+        //if collide
+        int random = UnityEngine.Random.Range(0, 3);
+        if(random == 0)
+        {
+            Grow();
+            Debug.Log("Grow");
+        }
+    }
+
+    private void Grow()
+    {
+        if(previousTail != snakeTail)
+        {
+            previousTail.SetBoolValue(true);
+            snake.Add(previousTail);
+            snakeLength ++;
+            snakeTail = previousTail;
+            for(int i = 0; i < snakeLength; i++)
+            {
+                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
+                snake[i].SetColor(color);
+            }
+        }
     }
 
     private void GenerateSnake()
     {   
-        grid =  gridGenerator.CurrentGrid;
+        grid =  GridGenerator.Instance.CurrentGrid;
         int randomX = UnityEngine.Random.Range(0, grid.Width);
         int randomY = UnityEngine.Random.Range(0, grid.Height);
         snakeHead = grid.GridObjects[randomX, randomY];
@@ -122,12 +151,13 @@ public class SnakeManager : MonoBehaviour
         for(int i = 1; i < snakeList.Count + 1; i++)
         {
             Color color = new Color(1f - (float)i / snakeList.Count, 1f, 0.5f);
-            grid.SetSpriteColor((int)snakeList[i - 1].x, (int)snakeList[i - 1].y, color);
-            grid.SetCorrect((int)snakeList[i - 1].x, (int)snakeList[i - 1].y, true);
-            snake.Add(grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y]);
+            GridObject newGridObejct = grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y];
+            newGridObejct.SetColor(color);
+            newGridObejct.SetBoolValue(true);
+            snake.Add(newGridObejct);
         }
-        snakeTail = grid.GridObjects[(int)snakeList[snakeLength - 1].x, (int)snakeList[snakeLength - 1].y];
-        
+        snakeTail = snake[snakeLength - 1];
+        previousTail = snakeTail;
     }
 
     private List<Vector2> CheckValid(int x, int y, int count = 0)

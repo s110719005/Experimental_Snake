@@ -51,39 +51,39 @@ namespace GridSystem
             gridColorDatas.Add(newData);
         }
 
-        public void ResetColorData()
-        {
-            usedColors.Clear();
-            gridColorDatas.Clear();
-        }
+        // public void ResetColorData()
+        // {
+        //     usedColors.Clear();
+        //     gridColorDatas.Clear();
+        // }
 
-        public void Duplicate(Grid gridToDuplicate)
-        {
-            if(gridToDuplicate == null) { return; }
-            gridWidth = gridToDuplicate.Width;
-            gridHeight = gridToDuplicate.Height;
-            cellSize = gridToDuplicate.CellSize;
-            gridSprite = gridToDuplicate.GridSprite;
-            usedColors = new List<Color>();
-            gridColorDatas = new List<GridColorData>();
-            for(int x = 0; x < gridToDuplicate.GridObjects.GetLength(0); x++)
-            {
-                for(int y = 0; y < gridToDuplicate.GridObjects.GetLength(1); y++)
-                {
-                    var duplicateColor = gridToDuplicate.GridObjects[x, y].gridSprite.color;
-                    if(!usedColors.Contains(duplicateColor))
-                    {
-                        usedColors.Add(duplicateColor);
-                    }
-                    SetGridSpritesColor(x, y, duplicateColor);
-                }
-            }
+        // public void Duplicate(Grid gridToDuplicate)
+        // {
+        //     if(gridToDuplicate == null) { return; }
+        //     gridWidth = gridToDuplicate.Width;
+        //     gridHeight = gridToDuplicate.Height;
+        //     cellSize = gridToDuplicate.CellSize;
+        //     gridSprite = gridToDuplicate.GridSprite;
+        //     usedColors = new List<Color>();
+        //     gridColorDatas = new List<GridColorData>();
+        //     for(int x = 0; x < gridToDuplicate.GridObjects.GetLength(0); x++)
+        //     {
+        //         for(int y = 0; y < gridToDuplicate.GridObjects.GetLength(1); y++)
+        //         {
+        //             var duplicateColor = gridToDuplicate.GridObjects[x, y].gridSprite.color;
+        //             if(!usedColors.Contains(duplicateColor))
+        //             {
+        //                 usedColors.Add(duplicateColor);
+        //             }
+        //             SetGridSpritesColor(x, y, duplicateColor);
+        //         }
+        //     }
 
-        }
+        // }
 
-        internal void AddUsedColor(Color usedColor)
-        {
-            usedColors.Add(usedColor);
-        }
+        // internal void AddUsedColor(Color usedColor)
+        // {
+        //     usedColors.Add(usedColor);
+        // }
     }
 }
