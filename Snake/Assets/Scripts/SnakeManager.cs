@@ -9,6 +9,8 @@ public class SnakeManager : MonoBehaviour
 {
     [SerializeField]
     private int snakeLength;
+    [SerializeField]
+    private FruitManager fruitManager;
     private GridObject snakeHead;
     private GridObject snakeTail;
     private GridObject previousTail;
@@ -16,7 +18,7 @@ public class SnakeManager : MonoBehaviour
     //private Vector2 snakeGeneratePosition;
     private GridSystem.Grid grid;
     private List<Vector2> snakeList;
-    private List<GridObject> snake;
+    public List<GridObject> snake;
     void Start()
     {
         snake = new List<GridObject>();
@@ -42,7 +44,7 @@ public class SnakeManager : MonoBehaviour
         snakeTail = null;
         previousTail = null;
         //reset color
-        for(int i = 0; i < snakeList.Count; i++)
+        for(int i = 0; i < snake.Count; i++)
         {
             Color color = new Color(1, 1, 1);
             snake[i].SetColor(color);
@@ -53,6 +55,12 @@ public class SnakeManager : MonoBehaviour
 
     private void MoveSnake(int x, int y)
     {
+        StuckCheck();
+        if(snakeHead.X + x < 0 || snakeHead.Y + y < 0 || snakeHead.X + x >= grid.Width || snakeHead.Y + y >= grid.Height) 
+        {
+            Debug.Log("Can't move");
+            return;
+        }
         GridObject newGridObject = grid.GridObjects[snakeHead.X + x, snakeHead.Y + y];
         if(snake.Contains(newGridObject))
         {
@@ -87,17 +95,26 @@ public class SnakeManager : MonoBehaviour
             snakeHead = newGridObject;
             snakeTail = snake[snakeLength - 1];
         }
-        FruitCollideCheck();
+        FruitCollideCheck(newGridObject);
     }
 
-    private void FruitCollideCheck()
+    private void StuckCheck()
     {
+        if(!IsAvailableAdjacent(snakeHead))
+        {
+            ResetSnake();
+            GenerateSnake();
+        }
+    }
+
+    private void FruitCollideCheck(GridObject gridObject)
+    {
+        if(fruitManager == null) { return; }
         //if collide
-        int random = UnityEngine.Random.Range(0, 3);
-        if(random == 0)
+        if(fruitManager.IsContainGird(gridObject))
         {
             Grow();
-            Debug.Log("Grow");
+            fruitManager.RemoveFruit(gridObject);
         }
     }
 
@@ -120,10 +137,8 @@ public class SnakeManager : MonoBehaviour
     private void GenerateSnake()
     {   
         grid =  GridManager.Instance.CurrentGrid;
-        int randomX = UnityEngine.Random.Range(0, grid.Width);
-        int randomY = UnityEngine.Random.Range(0, grid.Height);
-        snakeHead = grid.GridObjects[randomX, randomY];
-        snakeList = CheckValid(randomX, randomY);
+        snakeHead = GridManager.Instance.GetRandomAvailableGrid();
+        snakeList = CheckValid(snakeHead.X, snakeHead.Y);
         for(int i = 1; i < snakeList.Count + 1; i++)
         {
             Color color = new Color(1f - (float)i / snakeList.Count, 1f, 0.5f);
@@ -187,5 +202,25 @@ public class SnakeManager : MonoBehaviour
             random = UnityEngine.Random.Range(0, adjacentGrid.Count);
             return adjacentGrid[random];
         }
+    }
+
+    private bool IsAvailableAdjacent(GridObject gridObject)
+    {
+        List<Vector2> adjacentGrid = new List<Vector2>{ new Vector2(gridObject.X + 1, gridObject.Y), 
+                                                        new Vector2(gridObject.X - 1, gridObject.Y), 
+                                                        new Vector2(gridObject.X, gridObject.Y + 1), 
+                                                        new Vector2(gridObject.X, gridObject.Y - 1)};
+        for(int i = 0; i < adjacentGrid.Count; i++)
+        {
+            //check if in grid
+            //if() { return true; } 
+            //if() { return true; }  
+            //check if used
+            if(Mathf.Clamp(adjacentGrid[i].x, 0, grid.Width - 1) == adjacentGrid[i].x && Mathf.Clamp(adjacentGrid[i].y, 0, grid.Height - 1) == adjacentGrid[i].y) 
+            {
+                if(!snake.Contains(grid.GridObjects[(int)adjacentGrid[i].x, (int)adjacentGrid[i].y])) { return true; }
+            }
+        }
+        return false;
     }
 }

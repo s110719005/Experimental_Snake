@@ -26,6 +26,10 @@ namespace GridSystem
         private List<GridDefinition> gridDefinitions;
         private GridDefinition currentGridDefinition;
         public GridDefinition CurrentGridDefinition => currentGridDefinition;
+
+        private List<GridObject> availableGridObjects;
+        private List<GridObject> unavailableGridObjects;
+
         //[SerializeField]
         //private Color currentColor = Color.white;
         // [SerializeField]
@@ -52,8 +56,8 @@ namespace GridSystem
             }
             int random = UnityEngine.Random.Range(0, gridDefinitions.Count);
             currentGridDefinition = gridDefinitions[random];
-            // if(templateImage != null) { templateImage.sprite = currentGridDefinition.TemplateSprite; }
-            // if(endingTemplateImage != null) { endingTemplateImage.sprite = currentGridDefinition.TemplateSprite; }
+            availableGridObjects = new List<GridObject>();
+            unavailableGridObjects = new List<GridObject>();
             GenerateGrid();
         }
 
@@ -64,32 +68,59 @@ namespace GridSystem
 
         public void GenerateGrid()
         {
-            //grid = new Grid(gridDefinition, gameObject);
             grid = new Grid(currentGridDefinition.GridWidth, currentGridDefinition.GridHeight, currentGridDefinition.CellSize, currentGridDefinition.GridSprite, gameObject);
-            // int count = 0;
-            // for(int x = 0; x < grid.GridArray.GetLength(0); x++)
-            // {
-            //     for(int y = 0; y < grid.GridArray.GetLength(1); y++)
-            //     {
-            //         count = x * (currentGridDefinition.GridHeight - 1) + y;
-            //         if(grid.GridSprites[x, y].color == currentGridDefinition.GridColorDatas[count].color)
-            //         {
-            //             correctCell ++;
-            //             grid.SetCorrect(x, y, true);
-            //         }
-            //     }
-            // }
-            // UpdateAccuracyText();
+            foreach (var gridObject in grid.GridObjects)
+            {
+                availableGridObjects.Add(gridObject);
+            }
         }
 
         public void SetGridBoolValue(GridObject gridObject, bool value)
         {
             gridObject.SetBoolValue(value);
+            if(value == false)// set it to available
+            {
+                if(unavailableGridObjects.Contains(gridObject))
+                {
+                    unavailableGridObjects.Remove(gridObject);
+                }
+                if(!availableGridObjects.Contains(gridObject))
+                {
+                    availableGridObjects.Add(gridObject);
+                }
+            }
+            else // set it to unavailable
+            {
+                if(!unavailableGridObjects.Contains(gridObject))
+                {
+                    unavailableGridObjects.Add(gridObject);
+                }
+                if(availableGridObjects.Contains(gridObject))
+                {
+                    availableGridObjects.Remove(gridObject);
+                }
+            }
         }
 
-        public void GetRandomGrid()
+        public GridObject GetRandomAvailableGrid()
         {
+            if(availableGridObjects.Count <= 0)
+            {
+                Debug.Log("All grid object are unavailable");
+                return null;
+            }
+            int random = UnityEngine.Random.Range(0, availableGridObjects.Count);
+            return availableGridObjects[random];
+        }
 
+        internal void SetGridColor(GridObject gridObject, Color color)
+        {
+            gridObject.SetColor(color);
+        }
+
+        internal void SetGridIntValue(GridObject gridObject, int value)
+        {
+            gridObject.SetIntValue(value);
         }
 
         // private void CheckMouseInput()
@@ -113,7 +144,7 @@ namespace GridSystem
         //     currentColor = newColor;
         // }
 
-        
+
         // public bool UpdateGridColor(Vector3 position, Color colorToChange)
         // {
         //     int x, y;
@@ -151,69 +182,69 @@ namespace GridSystem
         //     }
         //     UpdateAccuracyText();
         // }
-/*#if UNITY_EDITOR
-        public void DEBUG_GenerateGrid()
-        {
-            if(DEBUG_hasGenerate) { DEBUG_ResetGrid(); }
-            grid = new Grid(gridDefinitions[0].GridWidth, gridDefinitions[0].GridHeight, gridDefinitions[0].CellSize, gridDefinitions[0].GridSprite, gameObject);
-            DEBUG_hasGenerate = true;
-        }
-
-        public void DEBUG_GenerateGridTemplate()
-        {
-            if(DEBUG_hasGenerate) { DEBUG_ResetGrid(); }
-            grid = new Grid(gridDefinitions[0], gameObject);
-            grid.SetColor(gridDefinitions[0]);
-            DEBUG_hasGenerate = true;
-        }
-
-        public void DEBUG_RecordColor()
-        {
-            gridDefinitions[0].ResetColorData();
-            if(grid != null)
-            {
-                for(int x = 0; x < grid.GridArray.GetLength(0); x++)
+        /*#if UNITY_EDITOR
+                public void DEBUG_GenerateGrid()
                 {
-                    for(int y = 0; y < grid.GridArray.GetLength(1); y++)
+                    if(DEBUG_hasGenerate) { DEBUG_ResetGrid(); }
+                    grid = new Grid(gridDefinitions[0].GridWidth, gridDefinitions[0].GridHeight, gridDefinitions[0].CellSize, gridDefinitions[0].GridSprite, gameObject);
+                    DEBUG_hasGenerate = true;
+                }
+
+                public void DEBUG_GenerateGridTemplate()
+                {
+                    if(DEBUG_hasGenerate) { DEBUG_ResetGrid(); }
+                    grid = new Grid(gridDefinitions[0], gameObject);
+                    grid.SetColor(gridDefinitions[0]);
+                    DEBUG_hasGenerate = true;
+                }
+
+                public void DEBUG_RecordColor()
+                {
+                    gridDefinitions[0].ResetColorData();
+                    if(grid != null)
                     {
-                        var recordColor = grid.GridSprites[x, y].color;
-                        if(!gridDefinitions[0].UsedColors.Contains(recordColor))
+                        for(int x = 0; x < grid.GridArray.GetLength(0); x++)
                         {
-                            gridDefinitions[0].AddUsedColor(recordColor);
+                            for(int y = 0; y < grid.GridArray.GetLength(1); y++)
+                            {
+                                var recordColor = grid.GridSprites[x, y].color;
+                                if(!gridDefinitions[0].UsedColors.Contains(recordColor))
+                                {
+                                    gridDefinitions[0].AddUsedColor(recordColor);
+                                }
+                                gridDefinitions[0].SetGridSpritesColor(x, y, grid.GridSprites[x, y].color);
+                            }
                         }
-                        gridDefinitions[0].SetGridSpritesColor(x, y, grid.GridSprites[x, y].color);
+                    }
+                    else
+                    {
+                        Debug.Log("THERE IS NO GRID!!!");
                     }
                 }
-            }
-            else
-            {
-                Debug.Log("THERE IS NO GRID!!!");
-            }
-        }
 
-        public void DEBUG_ResetGrid()
-        {
-            for(int x = 0; x < grid.GridArray.GetLength(0); x++)
-            {
-                for(int y = 0; y < grid.GridArray.GetLength(1); y++)
+                public void DEBUG_ResetGrid()
                 {
-                    DestroyImmediate(grid.GridSprites[x, y].gameObject);
+                    for(int x = 0; x < grid.GridArray.GetLength(0); x++)
+                    {
+                        for(int y = 0; y < grid.GridArray.GetLength(1); y++)
+                        {
+                            DestroyImmediate(grid.GridSprites[x, y].gameObject);
+                        }
+                    }
+                    grid.Reset();
+                    grid = null;
+                    DEBUG_hasGenerate = false;
                 }
-            }
-            grid.Reset();
-            grid = null;
-            DEBUG_hasGenerate = false;
-        }
 
-        public void DEBUG_CreateGridAsset()
-        {
-            GridDefinition newGrid = ScriptableObject.CreateInstance<GridDefinition>();
-            newGrid.name = "gridTemplate";
-            newGrid.Duplicate(grid);
-            var uniqueFileName = AssetDatabase.GenerateUniqueAssetPath("Assets/ScriptableObject/GridTemplate.asset");
-            AssetDatabase.CreateAsset(newGrid, uniqueFileName);
-        }
-#endif*/
+                public void DEBUG_CreateGridAsset()
+                {
+                    GridDefinition newGrid = ScriptableObject.CreateInstance<GridDefinition>();
+                    newGrid.name = "gridTemplate";
+                    newGrid.Duplicate(grid);
+                    var uniqueFileName = AssetDatabase.GenerateUniqueAssetPath("Assets/ScriptableObject/GridTemplate.asset");
+                    AssetDatabase.CreateAsset(newGrid, uniqueFileName);
+                }
+        #endif*/
     }
 
 }
