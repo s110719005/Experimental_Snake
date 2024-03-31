@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad82b1efaa3516140abffbf2fb3f7280, type: 3}
   m_Name: Grid
   m_EditorClassIdentifier: 
-  gridWidth: 20
-  gridHeight: 20
+  gridWidth: 15
+  gridHeight: 15
   cellSize: 40
   gridSprite: {fileID: 21300000, guid: 2b8a5ec6caa2b6e45b9ad15efed6a1a7, type: 3}
   templateSprite: {fileID: 0}
