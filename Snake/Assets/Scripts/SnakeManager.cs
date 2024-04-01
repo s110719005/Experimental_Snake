@@ -13,6 +13,7 @@ public class SnakeManager : MonoBehaviour
     private FruitManager fruitManager;
     private GridObject snakeHead;
     private GridObject snakeTail;
+    public GridObject SnakeTail => snakeTail;
     private GridObject previousTail;
     //[SerializeField]
     //private Vector2 snakeGeneratePosition;
@@ -63,46 +64,40 @@ public class SnakeManager : MonoBehaviour
             return;
         }
         GridObject newGridObject = grid.GridObjects[snakeHead.X + x, snakeHead.Y + y];
-        if(snake.Contains(newGridObject))
+        if(newGridObject == snakeTail)
+        {
+            Debug.Log("TOUCH TAIL");
+            GameCore.Instance.EndGame();
+            return;
+        }
+        else if(snake.Contains(newGridObject))
         {
             Debug.Log("Can't move");
             return;
         }
         else
         {
-            for(int i = snake.Count - 1; i >= 0; i--)
-            {
-                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                if(snakeTail == snake[i])
-                {
-                    snake[i].SetColor(Color.white);
-                    GridManager.Instance.SetGridBoolValue(snake[i], false);
-                    previousTail = snake[i];
-                    snake[i] = snake[i - 1];
-                }
-                else if(snakeHead == snake[i])
-                {
-                    snake[i] = newGridObject;
-                    snake[i].SetColor(color);
-                    GridManager.Instance.SetGridBoolValue(snake[i], true);
-                }
-                else
-                {
-                    snake[i].SetColor(color);
-                    snake[i] = snake[i - 1];
-                }
-                
-            }
+            snake.Insert(0, newGridObject);
             snakeHead = newGridObject;
+            GridManager.Instance.SetGridBoolValue(newGridObject, true);
+            FruitCollideCheck(newGridObject);
+            for(int i = 0; i < snake.Count - 1; i++)
+            {
+                GridManager.Instance.SetGridColor(snake[i], snake[i + 1].GridSprite.color);
+            }
+            GridManager.Instance.SetGridColor(snakeTail, Color.white);
+            GridManager.Instance.SetGridBoolValue(snakeTail, false);
+            previousTail = snakeTail;
+            snake.Remove(snakeTail);
             snakeTail = snake[snakeLength - 1];
         }
-        FruitCollideCheck(newGridObject);
     }
 
     private void StuckCheck()
     {
         if(!IsAvailableAdjacent(snakeHead))
         {
+            //TODO: restart
             ResetSnake();
             fruitManager.ResetFruit();
             GenerateSnake();
@@ -116,27 +111,24 @@ public class SnakeManager : MonoBehaviour
         //if collide
         if(fruitManager.IsContainGird(gridObject))
         {
-            Grow();
+            Grow(gridObject.GridSprite.color);
             fruitManager.RemoveFruit(gridObject);
         }
     }
 
-    private void Grow()
+    private void Grow(Color color)
     {
         if(previousTail != snakeTail)
         {
             GridManager.Instance.SetGridBoolValue(previousTail, true);
+            GridManager.Instance.SetGridColor(previousTail, color);
             snake.Add(previousTail);
             snakeLength ++;
             snakeTail = previousTail;
-            for(int i = 0; i < snakeLength; i++)
-            {
-                Color color = new Color(1f - (float)(i + 1) / snake.Count, 1f, 0.5f);
-                snake[i].SetColor(color);
-            }
             if(snakeLength == grid.Width * grid.Height)
             {
                 Debug.Log("END");
+                GameCore.Instance.EndGame();
             }
         }
     }
@@ -146,9 +138,17 @@ public class SnakeManager : MonoBehaviour
         grid =  GridManager.Instance.CurrentGrid;
         snakeHead = GridManager.Instance.GetRandomAvailableGrid();
         snakeList = CheckValid(snakeHead.X, snakeHead.Y);
+        Color color;
+        float randomR = UnityEngine.Random.Range(0.2f, 0.8f);
+        float randomG = UnityEngine.Random.Range(0.2f, 0.8f);
+        float randomB = UnityEngine.Random.Range(0.2f, 0.8f);
+        color = new Color(randomR, randomG, randomB);
         for(int i = 1; i < snakeList.Count + 1; i++)
         {
-            Color color = new Color(1f - (float)i / snakeList.Count, 1f, 0.5f);
+            randomR = UnityEngine.Random.Range(-0.05f, 0.05f);
+            randomG = UnityEngine.Random.Range(-0.05f, 0.05f);
+            randomB = UnityEngine.Random.Range(-0.05f, 0.05f);
+            color = new Color(randomR, randomG, randomB) + color;
             GridObject newGridObejct = grid.GridObjects[(int)snakeList[i - 1].x, (int)snakeList[i - 1].y];
             newGridObejct.SetColor(color);
             GridManager.Instance.SetGridBoolValue(newGridObejct, true);
@@ -156,6 +156,7 @@ public class SnakeManager : MonoBehaviour
         }
         snakeTail = snake[snakeLength - 1];
         previousTail = snakeTail;
+        StuckCheck();
     }
 
     private List<Vector2> CheckValid(int x, int y, int count = 0)
@@ -219,10 +220,6 @@ public class SnakeManager : MonoBehaviour
                                                         new Vector2(gridObject.X, gridObject.Y - 1)};
         for(int i = 0; i < adjacentGrid.Count; i++)
         {
-            //check if in grid
-            //if() { return true; } 
-            //if() { return true; }  
-            //check if used
             if(Mathf.Clamp(adjacentGrid[i].x, 0, grid.Width - 1) == adjacentGrid[i].x && Mathf.Clamp(adjacentGrid[i].y, 0, grid.Height - 1) == adjacentGrid[i].y) 
             {
                 if(!snake.Contains(grid.GridObjects[(int)adjacentGrid[i].x, (int)adjacentGrid[i].y])) { return true; }

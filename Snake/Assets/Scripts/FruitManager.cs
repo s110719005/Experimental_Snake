@@ -8,6 +8,8 @@ public class FruitManager : MonoBehaviour
 {
     [SerializeField]
     private int maxGenerateAmount = 3;
+    [SerializeField]
+    private SnakeManager snakeManager;
     private GridSystem.Grid grid;
     private List<GridObject> fruits;
     // Start is called before the first frame update
@@ -15,7 +17,7 @@ public class FruitManager : MonoBehaviour
     {
         grid = GridManager.Instance.CurrentGrid;
         fruits = new List<GridObject>();
-        GenerateFruit();
+        //GenerateFruit();
     }
 
     public void GenerateFruit()
@@ -23,7 +25,12 @@ public class FruitManager : MonoBehaviour
         GridObject fruitGridObject = GridManager.Instance.GetRandomAvailableGrid();
         if(fruitGridObject != null)
         {
-            GridManager.Instance.SetGridColor(fruitGridObject, Color.red);
+            Color tailColor = snakeManager.SnakeTail.GridSprite.color;
+            float randomR = UnityEngine.Random.Range(-0.05f, 0.05f);
+            float randomG = UnityEngine.Random.Range(-0.05f, 0.05f);
+            float randomB = UnityEngine.Random.Range(-0.05f, 0.05f);
+            Color color = new Color(randomR, randomG, randomB) + tailColor;
+            GridManager.Instance.SetGridColor(fruitGridObject, color);
             GridManager.Instance.SetGridBoolValue(fruitGridObject, true);
             fruits.Add(fruitGridObject);
         }
@@ -35,6 +42,10 @@ public class FruitManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.T))
         {
             GenerateFruit();
+        }
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            ResetFruit();
         }
     }
 
@@ -50,21 +61,21 @@ public class FruitManager : MonoBehaviour
 
     public bool IsContainGird(GridObject gridObject)
     {
+        if(fruits.Count < 1)
+        {
+            GenerateFruit();
+        }
         return fruits.Contains(gridObject);
     }
 
     internal void RemoveFruit(GridObject gridObject)
     {
         fruits.Remove(gridObject);
-        //GridManager.Instance.SetGridColor(gridObject, Color.white);
-        //GridManager.Instance.SetGridBoolValue(gridObject, false);
-        if(fruits.Count < 3)
+        ResetFruit();
+        int random = UnityEngine.Random.Range(1, maxGenerateAmount);
+        for(int i = 0; i < random; i++)
         {
-            int random = UnityEngine.Random.Range(1, maxGenerateAmount);
-            for(int i = 0; i < random; i++)
-            {
-                GenerateFruit();
-            }
+            GenerateFruit();
         }
     }
 }
