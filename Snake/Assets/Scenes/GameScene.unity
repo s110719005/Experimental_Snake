@@ -536,6 +536,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2281a5e43d964e34fac940d1712ccf05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  snakeManager: {fileID: 2145549758}
+  isTitle: 0
 --- !u!4 &2111013050
 Transform:
   m_ObjectHideFlags: 0
