@@ -10,6 +10,8 @@ public class FruitManager : MonoBehaviour
     private int maxGenerateAmount = 3;
     [SerializeField]
     private SnakeManager snakeManager;
+    [SerializeField]
+    private AudioSource audioSource;
     private GridSystem.Grid grid;
     private List<GridObject> fruits;
     // Start is called before the first frame update
@@ -71,8 +73,9 @@ public class FruitManager : MonoBehaviour
     internal void RemoveFruit(GridObject gridObject)
     {
         fruits.Remove(gridObject);
+        audioSource.Play();
         ResetFruit();
-        int random = UnityEngine.Random.Range(1, maxGenerateAmount);
+        int random = UnityEngine.Random.Range(2, maxGenerateAmount);
         for(int i = 0; i < random; i++)
         {
             GenerateFruit();
