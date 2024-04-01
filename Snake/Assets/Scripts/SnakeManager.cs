@@ -22,8 +22,8 @@ public class SnakeManager : MonoBehaviour
     public List<GridObject> snake;
     void Start()
     {
-        snake = new List<GridObject>();
-        GenerateSnake();
+        
+        //GenerateSnake();
     }
 
     void Update()
@@ -64,6 +64,7 @@ public class SnakeManager : MonoBehaviour
             return;
         }
         GridObject newGridObject = grid.GridObjects[snakeHead.X + x, snakeHead.Y + y];
+        GameCore.Instance.MenuCollisionCheck(newGridObject);
         if(newGridObject == snakeTail)
         {
             Debug.Log("TOUCH TAIL");
@@ -133,8 +134,9 @@ public class SnakeManager : MonoBehaviour
         }
     }
 
-    private void GenerateSnake()
+    public void GenerateSnake()
     {   
+        snake = new List<GridObject>();
         grid =  GridManager.Instance.CurrentGrid;
         snakeHead = GridManager.Instance.GetRandomAvailableGrid();
         snakeList = CheckValid(snakeHead.X, snakeHead.Y);
@@ -199,6 +201,10 @@ public class SnakeManager : MonoBehaviour
             if(Mathf.Clamp(adjacentGrid[i].y, 0, gridHeight - 1) != adjacentGrid[i].y) { invalidGrid.Add(i); continue; }  
             //check if used
             if(usedGrid.Contains(adjacentGrid[i])) { invalidGrid.Add(i); continue; }
+            if(GridManager.Instance.CurrentGrid.GridObjects[(int)adjacentGrid[i].x, (int)adjacentGrid[i].y].BoolValue == true)
+            {
+                invalidGrid.Add(i); continue;
+            }
         }
         for(int j = invalidGrid.Count - 1; j >= 0; j--)
         {
