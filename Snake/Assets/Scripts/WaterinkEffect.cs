@@ -37,6 +37,8 @@ public class WaterinkEffect : MonoBehaviour
     private IEnumerator WaterinkAnimation(Vector3 position, Color waterinkColor)
     {
         GameObject waterink = Instantiate(waterinkPrefab, position, waterinkPrefab.transform.rotation);
+        float randomZ = Random.Range(0, 360);
+        waterink.transform.eulerAngles = new Vector3(waterink.transform.eulerAngles.x, waterink.transform.eulerAngles.y, randomZ);
         SpriteRenderer waterinkSprite = waterink.GetComponent<SpriteRenderer>();
         waterinkSprite.color = waterinkColor;
         int randomIndex = Random.Range(0, waterinkSprites.Count);
