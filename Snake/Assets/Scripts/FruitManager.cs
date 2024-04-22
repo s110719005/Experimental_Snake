@@ -55,7 +55,7 @@ public class FruitManager : MonoBehaviour
     {
         foreach (var fruit in fruits)
         {
-            GridManager.Instance.SetGridColor(fruit, Color.white);
+            GridManager.Instance.SetGridColor(fruit, new Color(1, 1, 1, 0));
             GridManager.Instance.SetGridBoolValue(fruit, false);
         }
         fruits.Clear();

@@ -110,7 +110,7 @@ namespace GridSystem
                     gridObjects[x, y] = new GridObject();
                     gridObjects[x, y].SetSprite(gameObject.GetComponent<SpriteRenderer>());
                     gridObjects[x, y].SetSprite(gridSprite);
-                    gridObjects[x, y].SetColor(Color.white);
+                    gridObjects[x, y].SetColor(new Color(1, 1, 1, 0));
 
                     Transform transform = gameObject.transform;
                     transform.SetParent(parent.transform, false);
@@ -125,7 +125,7 @@ namespace GridSystem
             }
         }
 
-        private Vector3 GetWorldPosition(int x, int y)
+        public Vector3 GetWorldPosition(int x, int y)
         {
             return new Vector3(x, 0, y) * cellSize;
         } 

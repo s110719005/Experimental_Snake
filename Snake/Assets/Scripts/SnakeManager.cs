@@ -11,6 +11,8 @@ public class SnakeManager : MonoBehaviour
     private int snakeLength;
     [SerializeField]
     private FruitManager fruitManager;
+    [SerializeField]
+    private WaterinkEffect waterinkEffectManager;
     private GridObject snakeHead;
     private GridObject snakeTail;
     public GridObject SnakeTail => snakeTail;
@@ -47,7 +49,7 @@ public class SnakeManager : MonoBehaviour
         //reset color
         for(int i = 0; i < snake.Count; i++)
         {
-            Color color = new Color(1, 1, 1);
+            Color color = new Color(1, 1, 1, 0);
             snake[i].SetColor(color);
             GridManager.Instance.SetGridBoolValue(snake[i], false);
         }
@@ -86,7 +88,7 @@ public class SnakeManager : MonoBehaviour
             {
                 GridManager.Instance.SetGridColor(snake[i], snake[i + 1].GridSprite.color);
             }
-            GridManager.Instance.SetGridColor(snakeTail, Color.white);
+            GridManager.Instance.SetGridColor(snakeTail, new Color(1, 1, 1, 0));
             GridManager.Instance.SetGridBoolValue(snakeTail, false);
             previousTail = snakeTail;
             snake.Remove(snakeTail);
