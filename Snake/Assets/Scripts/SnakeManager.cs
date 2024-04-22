@@ -30,11 +30,13 @@ public class SnakeManager : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.F))
-        {
-            ResetSnake();
-            GenerateSnake();
-        }
+        // if(Input.GetKeyDown(KeyCode.F))
+        // {
+        //     ResetSnake();
+        //     GenerateSnake();
+        //     fruitManager.ResetFruit();
+        //     fruitManager.GenerateFruit();
+        // }
         if(Input.GetKeyDown(KeyCode.W)) { MoveSnake( 0,  1); }
         if(Input.GetKeyDown(KeyCode.A)) { MoveSnake(-1,  0); }
         if(Input.GetKeyDown(KeyCode.S)) { MoveSnake( 0, -1); }
@@ -176,6 +178,7 @@ public class SnakeManager : MonoBehaviour
         if(count >= 100) 
         {
             Debug.Log("FAILED");
+            GameCore.Instance.EndGame();
             return null;
         }
         List<Vector2> usedGrid = new List<Vector2>();

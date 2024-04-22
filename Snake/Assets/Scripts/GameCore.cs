@@ -40,8 +40,8 @@ public class GameCore : MonoBehaviour
         var gridObjects = GridManager.Instance.CurrentGrid.GridObjects;
         startGridObject = gridObjects[8, 7];
         exitGridObject = gridObjects[8, 2];
-        GridManager.Instance.SetGridColor(startGridObject, Color.black);
-        GridManager.Instance.SetGridColor(exitGridObject, Color.black);
+        GridManager.Instance.SetGridColor(startGridObject, new Color(0.675f, 0.675f, 0.675f, 1));
+        GridManager.Instance.SetGridColor(exitGridObject, new Color(0.675f, 0.675f, 0.675f, 1));
         GridManager.Instance.SetGridBoolValue(startGridObject, true);
         GridManager.Instance.SetGridBoolValue(exitGridObject, true);
     }
@@ -98,7 +98,7 @@ public class GameCore : MonoBehaviour
             System.IO.Directory.CreateDirectory(folderPath);  // it will get created
         var screenshotName =
                                 "Screenshot_" +
-                                //System.DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss") + // puts the current time right into the screenshot name
+                                System.DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss") + // puts the current time right into the screenshot name
                                 "GradientSnake.png";
         ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(folderPath, screenshotName),2);
         //UnityEditor.AssetDatabase.Refresh();
