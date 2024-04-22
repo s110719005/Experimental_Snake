@@ -128,6 +128,12 @@ public class SnakeManager : MonoBehaviour
             snake.Add(previousTail);
             snakeLength ++;
             snakeTail = previousTail;
+            if(waterinkEffectManager != null)
+            {
+                Vector3 gridPosition = grid.GetWorldPosition(snakeHead.X, snakeHead.Y);
+                Vector3 waterinkPosition = new Vector3(gridPosition.x + 20, -20, gridPosition.z + 20);
+                waterinkEffectManager.PlayWaterinkEffect(waterinkPosition, color);
+            }
             if(snakeLength == grid.Width * grid.Height)
             {
                 Debug.Log("END");
